@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{8D7DF902-EC3F-4A65-A03C-4C502BE97EFF}</ProjectGuid>
-    <RootNamespace>CUDA_Increment_Kernel</RootNamespace>
+    <ProjectGuid>{4940174F-C4E3-4864-B296-460186E6F2D7}</ProjectGuid>
+    <RootNamespace>Threads_Indices_Kernel</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
