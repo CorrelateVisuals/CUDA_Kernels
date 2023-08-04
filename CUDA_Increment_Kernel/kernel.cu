@@ -3,12 +3,9 @@
 #include <iostream>
 
 void incrementCPU(int* a, int b, int N) {
-    std::cout << "Incremented on CPU: { ";
     for (int i = 0; i < N; i++) {
         a[i] = a[i] + 10;
-        std::cout << a[i] << " ";
-    };
-    std::cout << "}" << std::endl;
+    }
 }
 
 __global__ void incrementGPU(int* a, int b, int N) {
@@ -18,8 +15,8 @@ __global__ void incrementGPU(int* a, int b, int N) {
     };
 }
 
-void printResults(int* a, int N) {
-    std::cout << "Incremented on GPU: { ";
+void printResults(int* a, int N, const std::string& source) {
+    std::cout << "Incremented on " << source << ": { ";
     for (int i = 0; i < N; i++) {
         std::cout << a[i] << " ";
     }
@@ -33,6 +30,7 @@ int main() {
 
     // CPU execution
     incrementCPU(h_initialValues, stepSize, N);
+    printResults(h_initialValues, N, "CPU");
 
     // GPU execution
     dim3 gridSize(1, 1, 1);
@@ -54,7 +52,7 @@ int main() {
     cudaMemcpy(h_initialValues, d_initialValues, N * sizeof(int), cudaMemcpyDeviceToHost);
     cudaFree(d_initialValues);
 
-    printResults(h_initialValues, N);
+    printResults(h_initialValues, N, "GPU");
 
     return 0;
 }
