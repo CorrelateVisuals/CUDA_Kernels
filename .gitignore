@@ -31,9 +31,9 @@
 *.out
 *.app
 
-# CUDA debug folders
-.vs/
-x64/
+.vs/CUDA_Incrament_Kernel/v16/*
+x64/Debug/*
+
 
 
 
