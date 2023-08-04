@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\CUDA\CUDA_Kernels\CUDA_Incrament_Kernel\x64\Debug\CUDA_Incrament_Kernel.exe</FullPath>
+      <FullPath>C:\CUDA\Nvidea_CUDA\CUDA_Incrament_Kernel\x64\Debug\CUDA_Incrament_Kernel.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

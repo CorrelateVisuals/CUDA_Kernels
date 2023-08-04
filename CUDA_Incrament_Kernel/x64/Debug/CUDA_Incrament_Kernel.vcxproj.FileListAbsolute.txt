@@ -1,1 +1,2 @@
 C:\CUDA\CUDA_Kernels\CUDA_Incrament_Kernel\x64\Debug\CUDA_Incrament_Kernel.exe
+C:\CUDA\Nvidea_CUDA\CUDA_Incrament_Kernel\x64\Debug\CUDA_Incrament_Kernel.exe

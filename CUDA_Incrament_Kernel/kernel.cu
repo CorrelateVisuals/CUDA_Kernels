@@ -18,13 +18,21 @@ __global__ void incrementGPU(int* a, int b, int N) {
     };
 }
 
+void printResults(int* a, int N) {
+    std::cout << "Incremented on GPU: { ";
+    for (int i = 0; i < N; i++) {
+        std::cout << a[i] << " ";
+    }
+    std::cout << "}" << std::endl;
+}
+
 int main() {
     const int N = 10;
-    int incrementBy = 10;
+    int stepSize = 10;
     int h_initialValues[N] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
     // CPU execution
-    incrementCPU(h_initialValues, incrementBy, N);
+    incrementCPU(h_initialValues, stepSize, N);
 
     // GPU execution
     dim3 gridSize(1, 1, 1);
@@ -33,16 +41,20 @@ int main() {
 
     cudaMalloc((void**)&d_initialValues, N * sizeof(int));
     cudaMemcpy(d_initialValues, h_initialValues, N * sizeof(int), cudaMemcpyHostToDevice);
-    incrementGPU << < gridSize, blockSize >> > (d_initialValues, incrementBy, N);
+
+    incrementGPU << < gridSize, blockSize >> > (d_initialValues, stepSize, N);
+
+    cudaError_t cudaStatus = cudaGetLastError();
+    if (cudaStatus != cudaSuccess) {
+        std::cerr << "Kernel launch failed: " << cudaGetErrorString(cudaStatus) << std::endl;
+        cudaFree(d_initialValues);
+        return 1;
+    }
 
     cudaMemcpy(h_initialValues, d_initialValues, N * sizeof(int), cudaMemcpyDeviceToHost);
     cudaFree(d_initialValues);
 
-    std::cout << "Incremented on GPU: { ";
-    for (int i = 0; i < N; i++) {
-        std::cout << h_initialValues[i] << " ";
-    }
-    std::cout << "}" << std::endl;
+    printResults(h_initialValues, N);
 
     return 0;
 }
