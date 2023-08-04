@@ -37,3 +37,9 @@ x64/Debug/*
 
 
 
+CUDA_Increment_Kernel/.vs/CUDA_Increment_Kernel/v16/.suo
+CUDA_Increment_Kernel/.vs/CUDA_Increment_Kernel/v16/Browse.VC.db
+CUDA_Increment_Kernel/.vs/CUDA_Increment_Kernel/v16/Browse.VC.db-shm
+CUDA_Increment_Kernel/.vs/CUDA_Increment_Kernel/v16/Browse.VC.db-wal
+CUDA_Increment_Kernel/.vs/CUDA_Increment_Kernel/v16/Browse.VC.opendb
+CUDA_Increment_Kernel/.vs/CUDA_Increment_Kernel/v16/ipch/AutoPCH/b239162949f5e7ee/KERNEL.ipch
