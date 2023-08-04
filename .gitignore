@@ -50,3 +50,4 @@ Threads_Indices/.vs/Threads_Indices/v16/Browse.VC.db-wal
 Threads_Indices/.vs/Threads_Indices/v16/Browse.VC.opendb
 Threads_Indices/.vs/Threads_Indices/v16/ipch/AutoPCH/fabfb0bb4328ec0a/KERNEL.ipch
 Threads_Indices/Threads_Indices.vcxproj.user
+CUDA_Increment_Kernel/CUDA_Incrament_Kernel.vcxproj.user
