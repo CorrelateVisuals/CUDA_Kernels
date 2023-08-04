@@ -31,9 +31,7 @@
 *.out
 *.app
 
+# Visual Studio specifics
 .vs/CUDA_Incrament_Kernel/v16/*
 x64/Debug/*
-
-
-
-
+.vcxproj.user
