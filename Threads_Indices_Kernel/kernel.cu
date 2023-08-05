@@ -4,24 +4,23 @@
 #include <stdio.h>
 #include <iostream>
 
-__global__ void getKernelBlockDimensions(int* array) {
+__global__ void getKernelDetails(int* array, int key) {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
-    array[i] = blockDim.x;
-}
 
-__global__ void getKernelLocalhreadIndex(int* array) {
-    int i = threadIdx.x + blockIdx.x * blockDim.x;
-    array[i] = threadIdx.x;
-}
-
-__global__ void getKernelBlockIndex(int* array) {
-    int i = threadIdx.x + blockIdx.x * blockDim.x;
-    array[i] = blockIdx.x;
-}
-
-__global__ void getKernelThreadIndex(int* array) {
-    int i = threadIdx.x + blockIdx.x * blockDim.x;
-    array[i] = i;
+    switch (key) {
+        case 0:
+            array[i] = blockDim.x;
+            break;
+        case 1:
+            array[i] = threadIdx.x;
+            break;
+        case 2:
+            array[i] = blockIdx.x;
+            break;
+        case 3:
+            array[i] = i;
+            break;
+    }
 }
 
 void printResults(int* array, int arraySize, const std::string& source) {
@@ -33,61 +32,61 @@ void printResults(int* array, int arraySize, const std::string& source) {
 }
 
 int main() {
-    const dim3 gridSizex = { 3, 1, 1 };
+    const dim3 gridSizeX = { 3, 1, 1 };
     const dim3 numThreads = { 4, 1, 1 };
-    const int arraySize = gridSizex.x * numThreads.x;
+    const int arraySize = gridSizeX.x * numThreads.x;
 
-    int* h_array_block_dims = new int[arraySize];
-    int* h_array_local_thread = new int[arraySize];
-    int* h_array_block_index = new int[arraySize];
-    int* h_array_thread_index = new int[arraySize];
+    int* h_blockDimensions = new int[arraySize];
+    int* h_localThreads = new int[arraySize];
+    int* h_blockIndices = new int[arraySize];
+    int* h_threadsIndices = new int[arraySize];
 
-    int* d_array_block_dims;
-    int* d_array_local_thread;
-    int* d_array_block_index;
-    int* d_array_thread_index;
+    int* d_blockDimensions;
+    int* d_arrayLocalThread;
+    int* d_blockIndices;
+    int* d_threadsIndices;
 
     // Block Dimensions
-    cudaMalloc((void**)&d_array_block_dims, arraySize * sizeof(int));
-    cudaMemcpy(d_array_block_dims, h_array_block_dims, arraySize * sizeof(int), cudaMemcpyHostToDevice);
-    getKernelBlockDimensions << <gridSizex, numThreads >> > (d_array_block_dims);
+    cudaMalloc((void**)&d_blockDimensions, arraySize * sizeof(int));
+    cudaMemcpy(d_blockDimensions, h_blockDimensions, arraySize * sizeof(int), cudaMemcpyHostToDevice);
+    getKernelDetails<<<gridSizeX, numThreads>>>(d_blockDimensions, 0);
 
     // Local Thread Index
-    cudaMalloc((void**)&d_array_local_thread, arraySize * sizeof(int));
-    cudaMemcpy(d_array_local_thread, h_array_local_thread, arraySize * sizeof(int), cudaMemcpyHostToDevice);
-    getKernelLocalhreadIndex << <gridSizex, numThreads >> > (d_array_local_thread);
+    cudaMalloc((void**)&d_arrayLocalThread, arraySize * sizeof(int));
+    cudaMemcpy(d_arrayLocalThread, h_localThreads, arraySize * sizeof(int), cudaMemcpyHostToDevice);
+    getKernelDetails<<<gridSizeX, numThreads>>>(d_arrayLocalThread, 1);
 
     // Block Index
-    cudaMalloc((void**)&d_array_block_index, arraySize * sizeof(int));
-    cudaMemcpy(d_array_block_index, h_array_block_index, arraySize * sizeof(int), cudaMemcpyHostToDevice);
-    getKernelBlockIndex << <gridSizex, numThreads >> > (d_array_block_index);
+    cudaMalloc((void**)&d_blockIndices, arraySize * sizeof(int));
+    cudaMemcpy(d_blockIndices, h_blockIndices, arraySize * sizeof(int), cudaMemcpyHostToDevice);
+    getKernelDetails<<<gridSizeX, numThreads>>>(d_blockIndices, 2);
 
     // Thread Index
-    cudaMalloc((void**)&d_array_thread_index, arraySize * sizeof(int));
-    cudaMemcpy(d_array_thread_index, h_array_thread_index, arraySize * sizeof(int), cudaMemcpyHostToDevice);
-    getKernelThreadIndex << <gridSizex, numThreads >> > (d_array_thread_index);
+    cudaMalloc((void**)&d_threadsIndices, arraySize * sizeof(int));
+    cudaMemcpy(d_threadsIndices, h_threadsIndices, arraySize * sizeof(int), cudaMemcpyHostToDevice);
+    getKernelDetails<<<gridSizeX, numThreads>>>(d_threadsIndices, 3);
 
-    cudaMemcpy(h_array_block_dims, d_array_block_dims, arraySize * sizeof(int), cudaMemcpyDeviceToHost);
-    cudaMemcpy(h_array_local_thread, d_array_local_thread, arraySize * sizeof(int), cudaMemcpyDeviceToHost);
-    cudaMemcpy(h_array_block_index, d_array_block_index, arraySize * sizeof(int), cudaMemcpyDeviceToHost);
-    cudaMemcpy(h_array_thread_index, d_array_thread_index, arraySize * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_blockDimensions, d_blockDimensions, arraySize * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_localThreads, d_arrayLocalThread, arraySize * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_blockIndices, d_blockIndices, arraySize * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_threadsIndices, d_threadsIndices, arraySize * sizeof(int), cudaMemcpyDeviceToHost);
 
-    cudaFree(d_array_block_dims);
-    cudaFree(d_array_local_thread);
-    cudaFree(d_array_block_index);
-    cudaFree(d_array_thread_index);
+    cudaFree(d_blockDimensions);
+    cudaFree(d_arrayLocalThread);
+    cudaFree(d_blockIndices);
+    cudaFree(d_threadsIndices);
 
     cudaDeviceSynchronize();
 
-    printResults(h_array_block_dims, arraySize, "Kernel block dimensions: ");
-    printResults(h_array_local_thread, arraySize, "Kernel local thread index: ");
-    printResults(h_array_block_index, arraySize, "Kernel block index: ");
-    printResults(h_array_thread_index, arraySize, "Kernel thread index: ");
+    printResults(h_blockDimensions, arraySize, "Kernel block dimensions: ");
+    printResults(h_localThreads, arraySize, "Kernel local thread index: ");
+    printResults(h_blockIndices, arraySize, "Kernel block index: ");
+    printResults(h_threadsIndices, arraySize, "Kernel thread index: ");
 
-    delete[] h_array_block_dims;
-    delete[] h_array_local_thread;
-    delete[] h_array_block_index;
-    delete[] h_array_thread_index;
+    delete[] h_blockDimensions;
+    delete[] h_localThreads;
+    delete[] h_blockIndices;
+    delete[] h_threadsIndices;
 
     return 0;
 }
