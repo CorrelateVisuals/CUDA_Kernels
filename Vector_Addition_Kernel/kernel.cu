@@ -5,6 +5,8 @@
 #include <random>
 #include <cassert>
 #include <iomanip>
+#include <vector>
+#include <ctime>
 
 const size_t WORKING_SET_COUNT = 256 * 1024;
 
@@ -22,9 +24,9 @@ __global__ void addVectorGPU(const Vector* arrayA, const Vector* arrayB, Vector*
 }
 
 int main() {
-	Vector* h_vectorArrayA = (Vector*)malloc(WORKING_SET_COUNT * sizeof(Vector));
-	Vector* h_vectorArrayB = (Vector*)malloc(WORKING_SET_COUNT * sizeof(Vector));
-	Vector* h_vectorArrayResult = (Vector*)malloc(WORKING_SET_COUNT * sizeof(Vector));
+	std::vector<Vector> h_vectorArrayA(WORKING_SET_COUNT);
+	std::vector<Vector> h_vectorArrayB(WORKING_SET_COUNT);
+	std::vector<Vector> h_vectorArrayResult(WORKING_SET_COUNT);
 
 	assert(h_vectorArrayA && h_vectorArrayB && h_vectorArrayResult && "Memory allocation failed for working set");
 
@@ -48,15 +50,16 @@ int main() {
 	cudaMalloc(&d_vectorArrayResult, sizeof(Vector) * WORKING_SET_COUNT);
 	assert(d_vectorArrayA && d_vectorArrayB && d_vectorArrayResult && "Cuda memory allocation failed for working set");
 
-	cudaMemcpy(d_vectorArrayA, h_vectorArrayA, sizeof(Vector) * WORKING_SET_COUNT, cudaMemcpyHostToDevice);
-	cudaMemcpy(d_vectorArrayB, h_vectorArrayB, sizeof(Vector) * WORKING_SET_COUNT, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_vectorArrayA, h_vectorArrayA.data(), sizeof(Vector) * WORKING_SET_COUNT, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_vectorArrayB, h_vectorArrayB.data(), sizeof(Vector) * WORKING_SET_COUNT, cudaMemcpyHostToDevice);
 
 	const size_t blockSize = 256;
 	const size_t blockCount = WORKING_SET_COUNT / blockSize;
 
 	addVectorGPU<<<blockSize, blockCount>>>(d_vectorArrayA, d_vectorArrayB, d_vectorArrayResult);
+	cudaDeviceSynchronize();
 
-	cudaMemcpy(h_vectorArrayResult, d_vectorArrayResult, sizeof(Vector) * WORKING_SET_COUNT, cudaMemcpyDeviceToHost);
+	cudaMemcpy(h_vectorArrayResult.data(), d_vectorArrayResult, sizeof(Vector) * WORKING_SET_COUNT, cudaMemcpyDeviceToHost);
 
 	for (size_t i = 0; i < 5; i++) {
 		std::cout << std::setw(8) << std::fixed 
@@ -69,7 +72,4 @@ int main() {
 	cudaFree(d_vectorArrayA);
 	cudaFree(d_vectorArrayB);
 	cudaFree(d_vectorArrayResult);
-	free(h_vectorArrayA);
-	free(h_vectorArrayB);
-	free(h_vectorArrayResult);
 }
