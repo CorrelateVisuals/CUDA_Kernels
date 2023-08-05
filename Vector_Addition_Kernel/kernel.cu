@@ -8,7 +8,7 @@
 
 const size_t WORKING_SET_COUNT = 256 * 1024;
 
-struct Vector {
+struct alignas(16) Vector {
 	float x, y, z, w;
 };
 
