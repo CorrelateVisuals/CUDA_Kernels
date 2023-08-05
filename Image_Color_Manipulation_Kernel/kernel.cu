@@ -17,7 +17,7 @@ __global__ void imageToGrayScale(unsigned char* imageRGBA) {
     uint32_t y = blockIdx.y * blockDim.y + threadIdx.y;
     uint32_t id = y * blockDim.x * gridDim.x + x;
 
-    Pixel* pPixel = (Pixel*)&imageRGBA[id * 4];
+    Pixel* pPixel = (Pixel*)&imageRGBA[id * sizeof(int)];
     unsigned char pixelValue = (unsigned char)(pPixel->r * 0.2126f + pPixel->g * 0.7152f + pPixel->b * 0.0722f);
     pPixel->r = pixelValue;
     pPixel->g = pixelValue;
@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    int width, height, componentCount, channels = 4;
+    int width, height, componentCount, channels = sizeof(Pixel) / sizeof(int);
     std::cout << "Loading png file ... ";
     unsigned char* imageData = stbi_load(argv[1], &width, &height, &componentCount, channels);
     if (!imageData) {
@@ -48,8 +48,8 @@ int main(int argc, char** argv) {
 
     std::cout << "Copy data to GPU ... ";
     unsigned char* pImageDataGPU = nullptr;
-    assert(cudaMalloc(&pImageDataGPU, width * height * 4) == cudaSuccess);
-    assert(cudaMemcpy(pImageDataGPU, imageData, width * height * 4, cudaMemcpyHostToDevice) == cudaSuccess);
+    assert(cudaMalloc(&pImageDataGPU, width * height * sizeof(int)) == cudaSuccess);
+    assert(cudaMemcpy(pImageDataGPU, imageData, width * height * sizeof(int), cudaMemcpyHostToDevice) == cudaSuccess);
 
     std::cout << "Running CUDA kernel ... ";
     dim3 blockSize(32, 32, 1);
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
     std::cout << "DONE" << std::endl;
 
     std::cout << "Copy data from GPU ... ";
-    assert(cudaMemcpy(imageData, pImageDataGPU, width * height * 4, cudaMemcpyDeviceToHost) == cudaSuccess);
+    assert(cudaMemcpy(imageData, pImageDataGPU, width * height * sizeof(int), cudaMemcpyDeviceToHost) == cudaSuccess);
     std::cout << "DONE" << std::endl;
 
     std::string fileNameOut = argv[1];
