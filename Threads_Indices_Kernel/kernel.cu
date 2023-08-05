@@ -5,7 +5,7 @@
 #include <iostream>
 
 __global__ void getKernelDetails(int* array, int key) {
-    int i = threadIdx.x + blockIdx.x * blockDim.x;
+    size_t i = threadIdx.x + blockIdx.x * blockDim.x;
 
     switch (key) {
         case 0:
@@ -25,7 +25,7 @@ __global__ void getKernelDetails(int* array, int key) {
 
 void printResults(int* array, int arraySize, const std::string& source) {
     std::cout << source;
-    for (int i = 0; i < arraySize; i++) {
+    for (size_t i = 0; i < arraySize; i++) {
         std::cout << array[i] << " ";
     }
     std::cout << std::endl;

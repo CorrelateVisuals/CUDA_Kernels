@@ -2,23 +2,24 @@
 #include "device_launch_parameters.h"
 #include <iostream>
 
+int stepSize = 10;
+
 void incrementCPU(int* a, int arraySize) {
-    for (int i = 0; i < arraySize; i++) {
-        a[i] = a[i] + 10;
+    for (size_t i = 0; i < arraySize; i++) {
+        a[i] += stepSize;
     }
 }
 
 __global__ void incrementGPU(int* a, int arraySize) {
-    int i = threadIdx.x;
-    int stepSize = 10;
+    size_t i = threadIdx.x;
     if (i < arraySize) {
-        a[i] = a[i] + stepSize;
+        a[i] += stepSize;
     };
 }
 
 void printResults(int* a, int arraySize, const std::string& source) {
     std::cout << "Incremented on " << source << ": { ";
-    for (int i = 0; i < arraySize; i++) {
+    for (size_t i = 0; i < arraySize; i++) {
         std::cout << a[i] << " ";
     }
     std::cout << "}" << std::endl;
