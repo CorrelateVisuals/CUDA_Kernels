@@ -1,0 +1,2 @@
+# Thread Indices Kernel
+This code explores the details of CUDA kernel execution by launching a kernel multiple times with different configurations. It uses CUDA to obtain information about the kernel's block dimensions, local thread indices, block indices, and thread indices. The results are printed, showcasing the parallelism and organization of threads within the GPU grid. The code demonstrates how CUDA efficiently manages and coordinates thread execution, providing valuable insights into kernel execution in parallel environments.
