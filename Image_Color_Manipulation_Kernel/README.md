@@ -1,5 +1,5 @@
 # Image Color Manipulation
-This CUDA kernel performs grayscale conversion on a jpg image, using weighted averages of RGB channels to determine pixel intensity. It loads the image, transfers data to the GPU, executes the CUDA kernel for grayscale conversion, and saves the resulting image back to disk with "_grey" appended to the filename. It also saves another image with the naming addition "_threads" to the disk. Here you can see what thread is part of which group and what part of the image it processes.
+This CUDA kernel performs grayscale conversion on a jpg image, using weighted averages of RGB channels to determine pixel intensity. It loads the image, transfers data to the GPU, executes the CUDA kernel for grayscale conversion, and saves the resulting image back to disk with "_grey" appended to the filename. It also saves another image with the naming addition "_threads" to the disk. Here you can see what thread is part of which group and which part of the image it processes.
 
 ![Image](https://github.com/CorrelateVisuals/Nvidea_CUDA/blob/main/Image_Color_Manipulation_Kernel/galaxy.jpg?raw=true)
 Original © GRANTECAN S.A.
