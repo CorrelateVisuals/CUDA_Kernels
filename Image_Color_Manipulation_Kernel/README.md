@@ -1,5 +1,5 @@
-# Vector Addition
-
-As observed with NVIDEA Nsight Systems 2021.3.3
-
-![alt text](https://github.com/CorrelateVisuals/Nvidea_CUDA/blob/main/Vector_Addition_Kernel/Nvidea_Nsight_Systems.PNG?raw=true)
+# Image Color Manipulation (greyscale)
+Original
+![Image](https://github.com/CorrelateVisuals/Nvidea_CUDA/blob/main/Image_Color_Manipulation_Kernel/galaxy.jpg?raw=true)
+Greyscale
+![Image](https://github.com/CorrelateVisuals/Nvidea_CUDA/blob/main/Image_Color_Manipulation_Kernel/galaxy_grey.jpg?raw=true)
