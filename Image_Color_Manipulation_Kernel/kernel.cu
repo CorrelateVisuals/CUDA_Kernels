@@ -36,12 +36,14 @@ __global__ void imageToGreyScale(unsigned char* imageRGBA) {
     pPixel->b = pixelValue;
     pPixel->a = maxPixelIntensity;
 
-    // Calculate the intensity variation from 0 to 31 within each 32x32 block
-    int intensityX = threadIdx.x % 32; // Intensity variation in the X direction (0 to 31)
-    int intensityY = threadIdx.y % 32; // Intensity variation in the Y direction (0 to 31)
-    int intensity = intensityY + intensityX; // Combine both intensity variations
-
+    int intensityX = threadIdx.x % blockDim.x + blockIdx.x;
+    int intensityY = threadIdx.y % blockDim.y + blockIdx.y; 
+    int intensity = intensityY + intensityX;
     pPixel->r = static_cast<unsigned char>( intensity );
+
+    pPixel->g = static_cast<unsigned char>(x);
+    pPixel->b = static_cast<unsigned char>(y);
+
     pPixel->a = maxPixelIntensity;
 
 }
