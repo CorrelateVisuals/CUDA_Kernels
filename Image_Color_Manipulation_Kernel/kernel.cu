@@ -21,6 +21,8 @@ struct greyScaleRGB {
     float b = 0.0722f;
 };
 
+const int blockDimension = 32;
+
 __global__ void imageToGreyScale(unsigned char* imageRGBA) {
     uint32_t x = blockIdx.x * blockDim.x + threadIdx.x;
     uint32_t y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -33,6 +35,15 @@ __global__ void imageToGreyScale(unsigned char* imageRGBA) {
     pPixel->g = pixelValue;
     pPixel->b = pixelValue;
     pPixel->a = maxPixelIntensity;
+
+    // Calculate the intensity variation from 0 to 31 within each 32x32 block
+    int intensityX = threadIdx.x % 32; // Intensity variation in the X direction (0 to 31)
+    int intensityY = threadIdx.y % 32; // Intensity variation in the Y direction (0 to 31)
+    int intensity = intensityY + intensityX; // Combine both intensity variations
+
+    pPixel->r = static_cast<unsigned char>( intensity );
+    pPixel->a = maxPixelIntensity;
+
 }
 
 int main(int argc, char** argv) {
@@ -62,7 +73,6 @@ int main(int argc, char** argv) {
     assert(cudaMemcpy(pImageDataGPU, imageData, width * height * channels, cudaMemcpyHostToDevice) == cudaSuccess);
 
     std::cout << "Running CUDA kernel ... ";
-    const int blockDimension = 32;
     dim3 blockSize(blockDimension, blockDimension, 1);
     dim3 gridSize(width / blockSize.x, height / blockSize.y);
     imageToGreyScale<<<gridSize, blockSize>>>(pImageDataGPU);
