@@ -13,7 +13,7 @@ const struct alignas(16) Pixel {
 };
 const int pixelSizeBytes = sizeof(Pixel);
 const int channels = pixelSizeBytes / sizeof(int);
-const unsigned char maxPixelIntensity = 255;
+const unsigned char maxIntensity = 255;
 
 struct greyScaleRGB {
     float r = 0.2126f;
@@ -23,7 +23,27 @@ struct greyScaleRGB {
 
 const int blockDimension = 32;
 
-__global__ void imageToGreyScale(unsigned char* imageRGBA) {
+__global__ void threadsOnImage(unsigned char* imageRGBA) {
+    uint32_t x = blockIdx.x * blockDim.x + threadIdx.x;
+    uint32_t y = blockIdx.y * blockDim.y + threadIdx.y;
+    uint32_t id = y * blockDim.x * gridDim.x + x;
+
+    Pixel* pPixel = (Pixel*)&imageRGBA[id * channels];
+    greyScaleRGB weight;
+    unsigned char pixelValue = (unsigned char)(pPixel->r * weight.r + pPixel->g * weight.g + pPixel->b * weight.b);
+    unsigned char offset = 50;
+    int a_value = pixelValue + offset;
+    pPixel->a = static_cast<unsigned char>(a_value < 0 ? 0 : (a_value > maxIntensity ? maxIntensity : a_value));
+
+    int intensityX = threadIdx.x % blockDim.x + blockIdx.x;
+    int intensityY = threadIdx.y % blockDim.y + blockIdx.y; 
+    int intensity = intensityY + intensityX;
+    pPixel->r = static_cast<unsigned char>( intensity );
+    pPixel->g = static_cast<unsigned char>(x);
+    pPixel->b = static_cast<unsigned char>(y);
+}
+
+__global__ void imageToGreyscale(unsigned char* imageRGBA) {
     uint32_t x = blockIdx.x * blockDim.x + threadIdx.x;
     uint32_t y = blockIdx.y * blockDim.y + threadIdx.y;
     uint32_t id = y * blockDim.x * gridDim.x + x;
@@ -34,16 +54,7 @@ __global__ void imageToGreyScale(unsigned char* imageRGBA) {
     pPixel->r = pixelValue;
     pPixel->g = pixelValue;
     pPixel->b = pixelValue;
-    pPixel->a = maxPixelIntensity;
-
-    // Calculate the intensity variation from 0 to 31 within each 32x32 block
-    int intensityX = threadIdx.x % 32; // Intensity variation in the X direction (0 to 31)
-    int intensityY = threadIdx.y % 32; // Intensity variation in the Y direction (0 to 31)
-    int intensity = intensityY + intensityX; // Combine both intensity variations
-
-    pPixel->r = static_cast<unsigned char>( intensity );
-    pPixel->a = maxPixelIntensity;
-
+    pPixel->a = maxIntensity;
 }
 
 int main(int argc, char** argv) {
@@ -75,7 +86,7 @@ int main(int argc, char** argv) {
     std::cout << "Running CUDA kernel ... ";
     dim3 blockSize(blockDimension, blockDimension, 1);
     dim3 gridSize(width / blockSize.x, height / blockSize.y);
-    imageToGreyScale<<<gridSize, blockSize>>>(pImageDataGPU);
+    imageToGreyscale<<<gridSize, blockSize>>>(pImageDataGPU);
     std::cout << "DONE" << std::endl;
 
     std::cout << "Copy data from GPU ... ";
@@ -88,6 +99,20 @@ int main(int argc, char** argv) {
     std::cout << "Writing png to disk ... ";
     std::string baseFileName = fileNameOut.substr(0, fileNameOut.find_last_of("."));
     std::string newFileName = baseFileName + "_grey.jpg";
+    stbi_write_png(newFileName.c_str(), width, height, channels, imageData, strideBytes);
+    std::cout << "Done " << fileNameOut << " saved" << std::endl;
+
+    std::cout << "Running CUDA kernel ... ";
+    threadsOnImage<<<gridSize, blockSize>>>(pImageDataGPU);
+    std::cout << "DONE" << std::endl;
+
+    std::cout << "Copy data from GPU ... ";
+    assert(cudaMemcpy(imageData, pImageDataGPU, width * height * channels, cudaMemcpyDeviceToHost) == cudaSuccess);
+    std::cout << "DONE" << std::endl;
+
+    std::cout << "Writing png to disk ... ";
+    baseFileName = fileNameOut.substr(0, fileNameOut.find_last_of("."));
+    newFileName = baseFileName + "_threads.jpg";
     stbi_write_png(newFileName.c_str(), width, height, channels, imageData, strideBytes);
     std::cout << "Done " << fileNameOut << " saved" << std::endl;
 
