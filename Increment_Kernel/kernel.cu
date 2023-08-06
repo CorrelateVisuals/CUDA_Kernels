@@ -36,7 +36,7 @@ int main() {
     // GPU execution
     dim3 gridSize(1, 1, 1);
     dim3 blockSize(arraySize, 1, 1);
-    int* d_initialValues;
+    int* d_initialValues = nullptr;
 
     cudaMalloc((void**)&d_initialValues, arraySize * sizeof(int));
     cudaMemcpy(d_initialValues, h_initialValues, arraySize * sizeof(int), cudaMemcpyHostToDevice);

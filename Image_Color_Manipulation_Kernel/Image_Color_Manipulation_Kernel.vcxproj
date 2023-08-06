@@ -79,6 +79,14 @@
   <ItemGroup>
     <CudaCompile Include="kernel.cu" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="STB_Image_Load.h" />
+    <ClInclude Include="STB_Image_Write.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="STB_Image_Load.cpp" />
+    <ClCompile Include="STB_Image_Write.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 11.5.targets" />
